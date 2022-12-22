@@ -1,5 +1,10 @@
-export const RecipeCard = (props: any) => {
-  const { recipe } = props;
+import { FC } from "react";
+import { Recipe } from "./Main";
+export const RecipeCard: FC<{
+  recipe: Recipe;
+  onEditHandler: (recipe: Recipe) => void;
+}> = (props) => {
+  const { recipe, onEditHandler } = props;
 
   return (
     <div className="col">
@@ -8,12 +13,14 @@ export const RecipeCard = (props: any) => {
         <div className="card-body">
           <h5 className="card-title">{recipe.name}</h5>
           <p className="card-text">{recipe.desc}</p>
-          {/* <a href="#" className="btn btn-primary">
-            Download
-          </a> */}
         </div>
         <div className="card-footer">
-            <small className="text-muted">Ingredients Here</small>
+          <button
+            className="btn btn-primary"
+            onClick={() => onEditHandler(recipe)}
+          >
+            Edit
+          </button>
         </div>
       </div>
     </div>

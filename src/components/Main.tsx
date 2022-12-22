@@ -2,7 +2,7 @@ import { ChangeEvent, FC, useState } from "react";
 import { RecipeCard } from "./RecipeCard";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-interface Recipe {
+export interface Recipe {
   id: number;
   image: string;
   name: string;
@@ -24,7 +24,8 @@ const recipesData: Recipe[] = [
   },
   {
     id: 3,
-    image: "https://cdn.pixabay.com/photo/2017/12/09/08/18/pizza-3007395__480.jpg",
+    image:
+      "https://cdn.pixabay.com/photo/2017/12/09/08/18/pizza-3007395__480.jpg",
     name: "Pizza",
     desc: "Pizza is a dish of Italian origin consisting of a usually round, flat base of leavened wheat-based dough topped with tomatoes, cheese.",
   },
@@ -35,9 +36,9 @@ const Main: FC = () => {
   const [name, setName] = useState<string>("");
   const [img, setImg] = useState<string>("");
   const [desc, setDesc] = useState<string>("");
+  const [editData, setEditData] = useState<Recipe | undefined>();
 
   const handleClose = () => {
-    console.log(name, img, desc);
     setState(false);
   };
 
@@ -49,23 +50,47 @@ const Main: FC = () => {
     setName("");
     setImg("");
     setDesc("");
-  }
+  };
+
+  const onEditHandler = (data: Recipe) => {
+    const { name, image, desc } = data;
+    setEditData(data);
+    setName(name);
+    setImg(image);
+    setDesc(desc);
+    handleShow();
+  };
 
   const handleSave = () => {
-    const newRecipe: Recipe = {
-      id: getUniqueID(),
-      name,
-      image: img,
-      desc,
-    };
-    setRecipes((recipes) => [...recipes, newRecipe]);
+    if (editData) {
+      const modifiedData = [...recipes];
+      modifiedData.map((data: Recipe) => {
+        if (data.id === editData.id) {
+          data.id = editData.id;
+          data.name = name;
+          data.image = img;
+          data.desc = desc;
+        }
+      });
+      setRecipes(modifiedData);
+    } else {
+      const newRecipe: Recipe = {
+        id: getUniqueID(),
+        name,
+        image: img,
+        desc,
+      };
+      setRecipes((recipes) => [...recipes, newRecipe]);
+    }
     clearForm();
     setState(false);
   };
 
   const handleShow = () => setState(true);
 
-  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeHandler = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) => {
     switch (e.target.name) {
       case "name":
         setName(e.target.value);
@@ -80,14 +105,14 @@ const Main: FC = () => {
   };
   return (
     <>
-    <div className="text-center mb-3">
-      <Button variant="primary" onClick={handleShow}>
-        Add Recipe
-      </Button>
-    </div>
+      <div className="text-center mb-3">
+        <Button variant="primary" onClick={handleShow}>
+          Add Recipe
+        </Button>
+      </div>
       <Modal show={state} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add Recipe</Modal.Title>
+          <Modal.Title>{editData ? "Edit" : "Add"} Recipe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="mb-3">
@@ -111,7 +136,9 @@ const Main: FC = () => {
             <input
               type="text"
               name="img"
+              value={img}
               className="form-control"
+              onChange={onChangeHandler}
               id="exampleFormControlInput2"
               placeholder="img url"
             />
@@ -125,6 +152,8 @@ const Main: FC = () => {
               className="form-control"
               id="exampleFormControlTextarea1"
               rows={3}
+              value={desc}
+              onChange={onChangeHandler}
               placeholder="Recipe Description."
             ></textarea>
           </div>
@@ -140,9 +169,11 @@ const Main: FC = () => {
       </Modal>
       <div className="row row-cols-1 row-cols-md-3 g-4">
         {recipes.map((recipe) => (
-          <>
-            <RecipeCard recipe={recipe}></RecipeCard>
-          </>
+          <RecipeCard
+            key={recipe.id}
+            recipe={recipe}
+            onEditHandler={onEditHandler}
+          ></RecipeCard>
         ))}
       </div>
     </>

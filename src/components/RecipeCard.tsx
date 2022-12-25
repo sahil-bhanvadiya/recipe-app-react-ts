@@ -3,8 +3,9 @@ import { Recipe } from "./Main";
 export const RecipeCard: FC<{
   recipe: Recipe;
   onEditHandler: (recipe: Recipe) => void;
+  deleteRecipeHandler: (id: number) => void;
 }> = (props) => {
-  const { recipe, onEditHandler } = props;
+  const { recipe, onEditHandler, deleteRecipeHandler } = props;
 
   return (
     <div className="col">
@@ -20,6 +21,12 @@ export const RecipeCard: FC<{
             onClick={() => onEditHandler(recipe)}
           >
             Edit
+          </button>
+          <button
+            className="btn btn-danger mx-2"
+            onClick={() => deleteRecipeHandler(recipe.id)}
+          >
+            Delete
           </button>
         </div>
       </div>

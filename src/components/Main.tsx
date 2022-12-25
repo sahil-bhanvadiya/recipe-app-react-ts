@@ -14,7 +14,7 @@ const recipesData: Recipe[] = [
     image:
       "https://img.freepik.com/free-photo/aloo-paratha-gobi-paratha-also-known-as-potato-cauliflower-stuffed-flatbread-dish-originating-from-indian-subcontinent_466689-76186.jpg?size=626&ext=jpg",
     name: "Aalu Paratha",
-    desc: "Aalu paratha is very good recipe.",
+    desc: "Aloo Paratha are popular Indian flatbreads stuffed with a delicious spiced potato mixture.",
   },
   {
     id: 2,
@@ -38,27 +38,38 @@ const Main: FC = () => {
   const [desc, setDesc] = useState<string>("");
   const [editData, setEditData] = useState<Recipe | undefined>();
 
+  const handleShow = () => setState(true);
+
   const handleClose = () => {
     setState(false);
-  };
-
-  const getUniqueID = (): number => {
-    return +(Date.now() + (Math.random() * 100000).toFixed());
+    clearForm();
   };
 
   const clearForm = () => {
     setName("");
     setImg("");
     setDesc("");
+    setEditData(undefined);
   };
 
-  const onEditHandler = (data: Recipe) => {
-    const { name, image, desc } = data;
-    setEditData(data);
-    setName(name);
-    setImg(image);
-    setDesc(desc);
-    handleShow();
+  const onChangeHandler = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    switch (e.target.name) {
+      case "name":
+        setName(e.target.value);
+        break;
+      case "img":
+        setImg(e.target.value);
+        break;
+      case "description":
+        setDesc(e.target.value);
+        break;
+    }
+  };
+
+  const getUniqueID = (): number => {
+    return +(Date.now() + (Math.random() * 100000).toFixed());
   };
 
   const handleSave = () => {
@@ -86,23 +97,19 @@ const Main: FC = () => {
     setState(false);
   };
 
-  const handleShow = () => setState(true);
-
-  const onChangeHandler = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    switch (e.target.name) {
-      case "name":
-        setName(e.target.value);
-        break;
-      case "img":
-        setImg(e.target.value);
-        break;
-      case "description":
-        setDesc(e.target.value);
-        break;
-    }
+  const onEditHandler = (data: Recipe) => {
+    const { name, image, desc } = data;
+    setEditData(data);
+    setName(name);
+    setImg(image);
+    setDesc(desc);
+    handleShow();
   };
+
+  const deleteRecipeHandler = (id:number) => {
+    setRecipes(recipes => recipes.filter(one=> one.id !== id))
+  }
+  
   return (
     <>
       <div className="text-center mb-3">
@@ -173,6 +180,7 @@ const Main: FC = () => {
             key={recipe.id}
             recipe={recipe}
             onEditHandler={onEditHandler}
+            deleteRecipeHandler={deleteRecipeHandler}
           ></RecipeCard>
         ))}
       </div>

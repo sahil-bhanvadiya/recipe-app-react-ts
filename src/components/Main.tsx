@@ -2,12 +2,25 @@ import { ChangeEvent, FC, useState } from "react";
 import { RecipeCard } from "./RecipeCard";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 export interface Recipe {
   id: number;
   image: string;
   name: string;
   desc: string;
 }
+type Inputs = {
+  name: string,
+  img: string,
+  desc: string,
+};
+const schema = yup.object({
+  name: yup.string().required('Please enter name!'),
+  img: yup.string().url('Please enter valid url!').required('Please enter website'),
+  desc: yup.string().required('Please enter desc!')
+}).required();
 const recipesData: Recipe[] = [
   {
     id: 1,
@@ -31,85 +44,68 @@ const recipesData: Recipe[] = [
   },
 ];
 const Main: FC = () => {
+  const { register, handleSubmit, watch, formState: { errors }, setValue, resetField } = useForm<Inputs>({
+    resolver: yupResolver(schema)
+  });
   const [state, setState] = useState<boolean>(false);
   const [recipes, setRecipes] = useState<Recipe[]>(recipesData);
-  const [name, setName] = useState<string>("");
-  const [img, setImg] = useState<string>("");
-  const [desc, setDesc] = useState<string>("");
   const [editData, setEditData] = useState<Recipe | undefined>();
 
   const handleShow = () => setState(true);
 
   const handleClose = () => {
     setState(false);
+    resetField('name'); 
+    resetField('img'); 
+    resetField('desc'); 
     clearForm();
   };
 
   const clearForm = () => {
-    setName("");
-    setImg("");
-    setDesc("");
     setEditData(undefined);
-  };
-
-  const onChangeHandler = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    switch (e.target.name) {
-      case "name":
-        setName(e.target.value);
-        break;
-      case "img":
-        setImg(e.target.value);
-        break;
-      case "description":
-        setDesc(e.target.value);
-        break;
-    }
   };
 
   const getUniqueID = (): number => {
     return +(Date.now() + (Math.random() * 100000).toFixed());
   };
 
-  const handleSave = () => {
-    if (editData) {
-      const modifiedData = [...recipes];
-      modifiedData.map((data: Recipe) => {
-        if (data.id === editData.id) {
-          data.id = editData.id;
-          data.name = name;
-          data.image = img;
-          data.desc = desc;
-        }
-      });
-      setRecipes(modifiedData);
-    } else {
-      const newRecipe: Recipe = {
-        id: getUniqueID(),
-        name,
-        image: img,
-        desc,
-      };
-      setRecipes((recipes) => [...recipes, newRecipe]);
-    }
-    clearForm();
-    setState(false);
-  };
-
   const onEditHandler = (data: Recipe) => {
     const { name, image, desc } = data;
+    setValue('name',name);
+    setValue('img',image);
+    setValue('desc',desc);
     setEditData(data);
-    setName(name);
-    setImg(image);
-    setDesc(desc);
     handleShow();
   };
 
   const deleteRecipeHandler = (id:number) => {
     setRecipes(recipes => recipes.filter(one=> one.id !== id))
   }
-  
+
+  const onSubmit: SubmitHandler<Inputs> = recipe => {
+      if (editData) {
+      const modifiedData = [...recipes];
+      modifiedData.map((data: Recipe) => {
+        if (data.id === editData.id) {
+          data.id = editData.id;
+          data.name = recipe.name;
+          data.image = recipe.img;
+          data.desc = recipe.desc;
+        }
+      });
+      setRecipes(modifiedData);
+    } else {
+      const newRecipe: Recipe = {
+        id: getUniqueID(),
+        name : recipe.name,
+        image: recipe.img,
+        desc: recipe.desc,
+      };
+      setRecipes((recipes) => [...recipes, newRecipe]);
+    }
+    clearForm();
+    setState(false);
+  }
   return (
     <>
       <div className="text-center mb-3">
@@ -118,6 +114,7 @@ const Main: FC = () => {
         </Button>
       </div>
       <Modal show={state} onHide={handleClose}>
+        <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Header closeButton>
           <Modal.Title>{editData ? "Edit" : "Add"} Recipe</Modal.Title>
         </Modal.Header>
@@ -128,13 +125,13 @@ const Main: FC = () => {
             </label>
             <input
               type="text"
-              name="name"
-              value={name}
-              onChange={onChangeHandler}
+              {...register("name")}
               className="form-control"
               id="exampleFormControlInput1"
               placeholder="pizza"
             />
+            <p className="text-danger">{errors.name?.message}</p>
+
           </div>
           <div className="mb-3">
             <label htmlFor="exampleFormControlInput2" className="form-label">
@@ -142,37 +139,37 @@ const Main: FC = () => {
             </label>
             <input
               type="text"
-              name="img"
-              value={img}
+              {...register("img")}
               className="form-control"
-              onChange={onChangeHandler}
               id="exampleFormControlInput2"
               placeholder="img url"
             />
+            <p className="text-danger">{errors.img?.message}</p>
           </div>
           <div className="mb-3">
             <label htmlFor="exampleFormControlTextarea1" className="form-label">
               Description
             </label>
             <textarea
-              name="description"
               className="form-control"
               id="exampleFormControlTextarea1"
               rows={3}
-              value={desc}
-              onChange={onChangeHandler}
+              {...register("desc")}
               placeholder="Recipe Description."
             ></textarea>
+            <p className="text-danger">{errors.desc?.message}</p>
+
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="success" onClick={handleSave}>
+          <Button variant="success" type="submit">
             Save Changes
           </Button>
         </Modal.Footer>
+        </form>
       </Modal>
       <div className="row row-cols-1 row-cols-md-3 g-4">
         {recipes.map((recipe) => (

@@ -1,7 +1,37 @@
 import "./App.css";
 import Main from "./components/Main";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate
+} from "react-router-dom";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import About from "./components/About";
 function App() {
-  return <Main />;
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Navigate to="/recipes" />
+    },
+    {
+      path: "/login",
+      element: <Login/>
+    },
+    {
+      path: "/register",
+      element: <Register/>,
+    },
+    {
+      path: "/about",
+      element: <About/>,
+    },
+    {
+      path: "/recipes",
+      element: <Main/>,
+    },
+  ]);
+  return <RouterProvider router={router} />;
 }
 
 export default App;

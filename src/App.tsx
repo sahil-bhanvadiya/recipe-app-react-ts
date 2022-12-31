@@ -5,7 +5,6 @@ import {
   RouterProvider,
   Navigate
 } from "react-router-dom";
-import Login from "./components/Login";
 import Register from "./components/Register";
 import About from "./components/About";
 function App() {
@@ -16,11 +15,11 @@ function App() {
     },
     {
       path: "/login",
-      element: <Login/>
+      element: <Register isLoginPage={true}/>
     },
     {
       path: "/register",
-      element: <Register/>,
+      element: <Register isLoginPage={false}/>,
     },
     {
       path: "/about",

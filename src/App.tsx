@@ -3,31 +3,33 @@ import Main from "./components/Main";
 import {
   createBrowserRouter,
   RouterProvider,
-  Navigate
+  Navigate,
 } from "react-router-dom";
 import Register from "./components/Register";
 import About from "./components/About";
+import AuthGaurd from "./components/AuthGaurd";
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Navigate to="/recipes" />
+      element: <Navigate to="/recipes" />,
     },
     {
       path: "/login",
-      element: <Register isLoginPage={true}/>
+      element: <Register isLoginPage={true} />,
     },
     {
       path: "/register",
-      element: <Register isLoginPage={false}/>,
+      element: <Register isLoginPage={false} />,
     },
     {
       path: "/about",
-      element: <About/>,
+      element: <About />,
     },
     {
       path: "/recipes",
-      element: <Main/>,
+      element: <AuthGaurd><Main /></AuthGaurd>,
+      children: []
     },
   ]);
   return <RouterProvider router={router} />;

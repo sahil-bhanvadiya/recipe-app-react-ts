@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import Navbar from "./Navbar";
 export interface Recipe {
   id: number;
   image: string;
@@ -108,6 +109,7 @@ const Main: FC = () => {
   }
   return (
     <>
+    <Navbar/>
       <div className="text-center mb-3">
         <Button variant="primary" onClick={handleShow}>
           Add Recipe

@@ -2,8 +2,8 @@ import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import Navbar from "./Navbar";
 import * as yup from "yup";
-
 type Inputs = {
   email: string;
   password: string;
@@ -28,12 +28,16 @@ const Register: FC<{ isLoginPage: boolean }> = ({ isLoginPage }) => {
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     //need api call
     console.log(data);
+    localStorage.setItem('token','true')
+    navigate('/recipes')
   };
   const onToggleHandler = (): void => {
     isLoginPage ? navigate("/register") : navigate("/login");
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="d-flex text-center">
       <main className="form-signin">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -87,6 +91,7 @@ const Register: FC<{ isLoginPage: boolean }> = ({ isLoginPage }) => {
         </p>
       </main>
     </div>
+    </>
   );
 };
 

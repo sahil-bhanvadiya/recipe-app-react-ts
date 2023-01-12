@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import { RecipeCard } from "./RecipeCard";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -6,6 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import Navbar from "./Navbar";
+import axios from "axios";
 export interface Recipe {
   id: number;
   image: string;
@@ -49,9 +50,17 @@ const Main: FC = () => {
     resolver: yupResolver(schema)
   });
   const [state, setState] = useState<boolean>(false);
-  const [recipes, setRecipes] = useState<Recipe[]>(recipesData);
+  const [recipes, setRecipes] = useState<any>([]);
   const [editData, setEditData] = useState<Recipe | undefined>();
-
+  useEffect(()=>{
+    const getRecipes = async() => {
+      const recipes = await axios.get('https://9f1a-117-217-127-227.in.ngrok.io/v1/recipe/list')
+      setRecipes(recipes.data);
+      console.log(recipes.data);
+      
+    }
+    getRecipes();
+  },[])
   const handleShow = () => setState(true);
 
   const handleClose = () => {
@@ -80,10 +89,10 @@ const Main: FC = () => {
   };
 
   const deleteRecipeHandler = (id:number) => {
-    setRecipes(recipes => recipes.filter(one=> one.id !== id))
+    // setRecipes(recipes => recipes.filter(one=> one.id !== id))
   }
 
-  const onSubmit: SubmitHandler<Inputs> = recipe => {
+  const onSubmit: SubmitHandler<Inputs> = async(recipe) => {
       if (editData) {
       const modifiedData = [...recipes];
       modifiedData.map((data: Recipe) => {
@@ -96,13 +105,13 @@ const Main: FC = () => {
       });
       setRecipes(modifiedData);
     } else {
-      const newRecipe: Recipe = {
-        id: getUniqueID(),
+      const body = {
         name : recipe.name,
-        image: recipe.img,
-        desc: recipe.desc,
-      };
-      setRecipes((recipes) => [...recipes, newRecipe]);
+        desc : recipe.desc,
+        img : recipe.img,
+      }
+      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/recipe/create',body)
+      console.log(response);
     }
     clearForm();
     setState(false);
@@ -174,7 +183,7 @@ const Main: FC = () => {
         </form>
       </Modal>
       <div className="row row-cols-1 row-cols-md-3 g-4">
-        {recipes.map((recipe) => (
+        {recipes.length && recipes.map((recipe:any) => (
           <RecipeCard
             key={recipe.id}
             recipe={recipe}

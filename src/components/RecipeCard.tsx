@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Recipe } from "./Main";
 export const RecipeCard: FC<{
-  recipe: Recipe;
+  recipe: any;
   onEditHandler: (recipe: Recipe) => void;
   deleteRecipeHandler: (id: number) => void;
 }> = (props) => {
@@ -10,10 +10,10 @@ export const RecipeCard: FC<{
   return (
     <div className="col">
       <div className="card h-100">
-        <img className="card-img-top" src={recipe.image} alt={recipe.name} />
+        <img className="card-img-top" src={recipe.imgUrl} alt={recipe.name} />
         <div className="card-body">
           <h5 className="card-title">{recipe.name}</h5>
-          <p className="card-text">{recipe.desc}</p>
+          <p className="card-text">{recipe.description}</p>
         </div>
         <div className="card-footer">
           <button

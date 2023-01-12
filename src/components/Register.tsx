@@ -4,6 +4,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Navbar from "./Navbar";
 import * as yup from "yup";
+import axios from 'axios';
+
 type Inputs = {
   email: string;
   password: string;
@@ -25,11 +27,25 @@ const Register: FC<{ isLoginPage: boolean }> = ({ isLoginPage }) => {
   });
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    //need api call
-    console.log(data);
-    localStorage.setItem('token','true')
-    navigate('/recipes')
+  const onSubmit: SubmitHandler<Inputs> = async(data) => {
+    if(!isLoginPage){
+      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/auth/register', data)
+      if(response.status === 201){
+        localStorage.setItem('token',response.data.token.accessToken)
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token.accessToken;
+        axios.defaults.headers.common['Content-Type'] = 'application/json'
+        navigate('/recipes')
+      }
+    }else{
+      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/auth/login', data)
+      if(response.status === 200){
+        localStorage.setItem('token',response.data.token.accessToken)
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token.accessToken;
+        axios.defaults.headers.common['Content-Type'] = 'application/json'
+        navigate('/recipes')
+      }
+    }
+    
   };
   const onToggleHandler = (): void => {
     isLoginPage ? navigate("/register") : navigate("/login");

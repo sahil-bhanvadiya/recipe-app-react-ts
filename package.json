@@ -12,6 +12,7 @@
     "@types/node": "^17.0.45",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
+    "axios": "^1.2.2",
     "bootstrap": "^5.2.3",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",

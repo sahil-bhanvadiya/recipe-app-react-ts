@@ -24,7 +24,7 @@ export const RecipeCard: FC<{
           </button>
           <button
             className="btn btn-danger mx-2"
-            onClick={() => deleteRecipeHandler(recipe.id)}
+            onClick={() => deleteRecipeHandler(recipe._id)}
           >
             Delete
           </button>

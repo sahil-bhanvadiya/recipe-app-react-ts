@@ -29,7 +29,7 @@ const Register: FC<{ isLoginPage: boolean }> = ({ isLoginPage }) => {
 
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
     if(!isLoginPage){
-      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/auth/register', data)
+      const response = await axios.post(`${process.env.REACT_APP_SECRET_NAME}/v1/auth/register`, data)
       if(response.status === 201){
         localStorage.setItem('token',response.data.token.accessToken)
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token.accessToken;
@@ -37,7 +37,7 @@ const Register: FC<{ isLoginPage: boolean }> = ({ isLoginPage }) => {
         navigate('/recipes')
       }
     }else{
-      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/auth/login', data)
+      const response = await axios.post(`${process.env.REACT_APP_SECRET_NAME}/v1/auth/login`, data)
       if(response.status === 200){
         localStorage.setItem('token',response.data.token.accessToken)
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token.accessToken;

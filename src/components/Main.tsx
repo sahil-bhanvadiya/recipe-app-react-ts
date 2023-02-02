@@ -23,42 +23,19 @@ const schema = yup.object({
   img: yup.string().url('Please enter valid url!').required('Please enter website'),
   desc: yup.string().required('Please enter desc!')
 }).required();
-const recipesData: Recipe[] = [
-  {
-    id: 1,
-    image:
-      "https://img.freepik.com/free-photo/aloo-paratha-gobi-paratha-also-known-as-potato-cauliflower-stuffed-flatbread-dish-originating-from-indian-subcontinent_466689-76186.jpg?size=626&ext=jpg",
-    name: "Aalu Paratha",
-    desc: "Aloo Paratha are popular Indian flatbreads stuffed with a delicious spiced potato mixture.",
-  },
-  {
-    id: 2,
-    image: "https://thumbs.dreamstime.com/b/bhel-puri-23902772.jpg",
-    name: "Bhel",
-    desc: "Bhelpuri is a savoury snack originating from India, and is also a type of chaat. It is made of puffed rice, vegetables and a tangy tamarind sauce, and has a crunchy texture.",
-  },
-  {
-    id: 3,
-    image:
-      "https://cdn.pixabay.com/photo/2017/12/09/08/18/pizza-3007395__480.jpg",
-    name: "Pizza",
-    desc: "Pizza is a dish of Italian origin consisting of a usually round, flat base of leavened wheat-based dough topped with tomatoes, cheese.",
-  },
-];
+
 const Main: FC = () => {
   const { register, handleSubmit, watch, formState: { errors }, setValue, resetField } = useForm<Inputs>({
     resolver: yupResolver(schema)
   });
   const [state, setState] = useState<boolean>(false);
   const [recipes, setRecipes] = useState<any>([]);
-  const [editData, setEditData] = useState<Recipe | undefined>();
+  const [editData, setEditData] = useState<any>();
+  const getRecipes = async() => {
+    const recipes = await axios.get(`${process.env.REACT_APP_SECRET_NAME}/v1/recipe/list`)
+    setRecipes(recipes.data);
+  }
   useEffect(()=>{
-    const getRecipes = async() => {
-      const recipes = await axios.get('https://9f1a-117-217-127-227.in.ngrok.io/v1/recipe/list')
-      setRecipes(recipes.data);
-      console.log(recipes.data);
-      
-    }
     getRecipes();
   },[])
   const handleShow = () => setState(true);
@@ -79,39 +56,38 @@ const Main: FC = () => {
     return +(Date.now() + (Math.random() * 100000).toFixed());
   };
 
-  const onEditHandler = (data: Recipe) => {
-    const { name, image, desc } = data;
+  const onEditHandler = (data: any) => {
+    const { name, imgUrl, description } = data;
+    console.log(data);
+    
     setValue('name',name);
-    setValue('img',image);
-    setValue('desc',desc);
+    setValue('img',imgUrl);
+    setValue('desc',description);
     setEditData(data);
     handleShow();
   };
 
-  const deleteRecipeHandler = (id:number) => {
-    // setRecipes(recipes => recipes.filter(one=> one.id !== id))
+  const deleteRecipeHandler = async(id:number) => {
+    //delete api call
+    const response = await axios.delete(`${process.env.REACT_APP_SECRET_NAME}/v1/recipe/${id}`)
+    if(response){
+      getRecipes();
+    }
   }
 
   const onSubmit: SubmitHandler<Inputs> = async(recipe) => {
       if (editData) {
-      const modifiedData = [...recipes];
-      modifiedData.map((data: Recipe) => {
-        if (data.id === editData.id) {
-          data.id = editData.id;
-          data.name = recipe.name;
-          data.image = recipe.img;
-          data.desc = recipe.desc;
-        }
-      });
-      setRecipes(modifiedData);
+      const response = await axios.put(`${process.env.REACT_APP_SECRET_NAME}/v1/recipe/${editData._id}`,recipe)
+      if(response){
+        getRecipes();
+      }
     } else {
       const body = {
         name : recipe.name,
         desc : recipe.desc,
         img : recipe.img,
       }
-      const response = await axios.post('https://9f1a-117-217-127-227.in.ngrok.io/v1/recipe/create',body)
-      console.log(response);
+      const response = await axios.post(`${process.env.REACT_APP_SECRET_NAME}/v1/recipe/create`,body)
     }
     clearForm();
     setState(false);
